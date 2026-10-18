@@ -1,9 +1,17 @@
 # AI Usage Disclosure
 
-AI assistance was used during development for coding guidance, debugging suggestions, documentation drafting, and test planning.
+AI assistance was used during development to support coding, debugging,
+documentation drafting, and test planning.
 
-The project code, configuration, evaluation results, and generated answers should be reviewed and tested by the developer before submission.
+The application integrates an LLM for report question answering. Responses
+must be grounded in reports the selected client is authorized to access.
+The implementation includes checks intended to identify unsupported claims,
+preserve citations, and escalate questions that cannot be answered reliably.
 
-The application uses an LLM for question answering. Its responses must be grounded in authorized report content and checked for unsupported claims. Human escalation is required when the system cannot provide a reliable answer.
+AI-generated suggestions and code require human review. The developer is
+responsible for the final implementation, security, evaluation results, and
+submission.
 
-Any external AI tools or models used should be listed accurately by the developer before submission.
+The exact AI assistants and models used during development should be disclosed
+accurately by the author. Do not attribute work to a specific tool or model
+unless that attribution is correct.
