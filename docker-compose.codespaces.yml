@@ -1,0 +1,13 @@
+# Codespaces-only override: container-to-container bridge networking is broken there.
+services:
+  mysql:
+    network_mode: host
+  chroma:
+    network_mode: host
+  api:
+    network_mode: host
+    ports: !reset []
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment:
+      MYSQL_HOST: 127.0.0.1
+      CHROMA_HOST: 127.0.0.1
