@@ -9,7 +9,7 @@ class Settings(BaseSettings):
 
     api_key: str
     gemini_api_key: str
-    llm_model: str = "gemini-2.5-flash"
+    llm_model: str = "gemini-3.8-flash"
     embed_model: str = "gemini-embedding-001"
     embed_dim: int = 768
 
