@@ -243,12 +243,21 @@ def finalize_node(state: State) -> State:
         if state["route"] == "calculation":
             conf = min(conf, 0.7)
         if unsupported:
-            conf -= 0.15
-            db.log_event(state["client_id"], "unsupported_numbers", {"numbers": unsupported[:10]})
+            db.log_event(
+                state["client_id"],
+                "unsupported_numbers",
+                {"numbers": unsupported[:10]},
+            )
         if not verified:
             conf = min(conf, 0.2)
         conf = round(max(0.0, min(1.0, conf)), 2)
-        if conf < s.escalation_threshold:
+
+        # Never return an answer containing unsupported numeric claims.
+        # Escalate instead of relying only on a confidence penalty.
+        if unsupported:
+            escalate = True
+            reason = "unsupported numeric claims detected"
+        elif conf < s.escalation_threshold:
             escalate, reason = True, f"low confidence ({conf})"
     out: State = {"citations": _citations(answer, hits), "confidence": conf}
     if escalate:

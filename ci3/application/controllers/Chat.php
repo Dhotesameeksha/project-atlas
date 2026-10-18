@@ -58,9 +58,16 @@ class Chat extends CI_Controller
 
     private function _json($data, $status)
     {
+        if (ob_get_level() > 0) { ob_clean(); }
+        $json = json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        if ($json === false) {
+            log_message('error', 'json_encode failed: ' . json_last_error_msg());
+            $status = 500;
+            $json = json_encode(array('error' => 'Could not encode the response.'));
+        }
         $this->output->set_status_header($status)
             ->set_content_type('application/json', 'utf-8')
             ->set_header('X-Content-Type-Options: nosniff')
-            ->set_output(json_encode($data));
+            ->set_output($json);
     }
 }
