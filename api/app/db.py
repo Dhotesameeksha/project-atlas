@@ -68,3 +68,15 @@ def create_escalation(client_id: str, question: str, reason: str, confidence: fl
             (client_id, question, reason, confidence),
         )
         return cur.lastrowid
+
+
+def list_escalations(limit: int = 100) -> list[dict]:
+    with connect() as c, c.cursor() as cur:
+        cur.execute(
+            "SELECT id, client_id, question, reason, confidence, status, created_at "
+            "FROM escalations ORDER BY id DESC LIMIT %s", (limit,))
+        rows = cur.fetchall()
+    for r in rows:
+        r["confidence"] = float(r["confidence"]) if r["confidence"] is not None else None
+        r["created_at"] = str(r["created_at"])
+    return rows

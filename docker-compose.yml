@@ -10,6 +10,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./db/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
       - ./db/02-users.sh:/docker-entrypoint-initdb.d/02-users.sh:ro
+      - ./db/03-ci3.sql:/docker-entrypoint-initdb.d/03-ci3.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
@@ -40,6 +41,18 @@ services:
         condition: service_started
     ports:
       - "8000:8000"
+
+  ci3:
+    build: ./ci3
+    env_file: .env
+    environment:
+      MYSQL_HOST: mysql
+      ATLAS_API_URL: http://api:8000
+      CI_ENV: production
+    depends_on:
+      - api
+    ports:
+      - "8080:8080"
 
 volumes:
   mysql_data:

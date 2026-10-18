@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     api_key: str
     gemini_api_key: str
     llm_model: str = "gemini-3.8-flash"
+    llm_fallback_models: str = ""
     embed_model: str = "gemini-embedding-001"
     embed_dim: int = 768
 
@@ -26,9 +27,15 @@ class Settings(BaseSettings):
 
     reports_dir: str = "/app/data/reports"
     top_k: int = 6
-    max_output_tokens: int = 900
+    max_output_tokens: int = 1200   # per LLM call (hard cap; a request makes at most 3 calls)
     request_timeout_s: int = 25
-    escalation_threshold: float = 0.35
+    escalation_threshold: float = 0.5
+    sql_timeout_s: int = 5
+    sql_row_limit: int = 50
+    cache_ttl_s: int = 600
+    # Rough cost estimate per 1M tokens (USD). Adjust to your model's price list.
+    price_in_per_m: float = 0.30
+    price_out_per_m: float = 2.50
 
 
 @lru_cache

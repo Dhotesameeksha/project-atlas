@@ -21,3 +21,6 @@ class ChatResponse(BaseModel):
     derived_values: list[dict] = []
     escalated: bool = False
     escalation_id: int | None = None
+    route: str | None = None
+    sql_query: str | None = None
+    cached: bool = False
