@@ -18,6 +18,25 @@ app = FastAPI(title="Atlas Report Copilot API", version="0.2.0")
 _CACHE: dict[str, tuple[float, dict]] = {}
 
 
+def _auto_ingest() -> None:
+    """If the vector store is empty (first start), load the reports. Retries until MySQL/Chroma are ready."""
+    for _ in range(12):
+        try:
+            from . import store
+            if store.collection().count() == 0:
+                log.info(json.dumps({"event": "auto_ingest", **ingest.ingest_all()}))
+            return
+        except Exception as exc:  # services still starting up, or Gemini quota hit
+            log.warning("auto-ingest waiting: %s", type(exc).__name__)
+            time.sleep(10)
+
+
+@app.on_event("startup")
+def _startup() -> None:
+    import threading
+    threading.Thread(target=_auto_ingest, daemon=True).start()
+
+
 def require_api_key(x_api_key: str = Header(default="")) -> None:
     if not hmac.compare_digest(x_api_key.encode(), get_settings().api_key.encode()):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
@@ -80,6 +99,6 @@ def chat(req: ChatRequest) -> ChatResponse:
         "derived_values": out.get("derived", []), "escalated": out.get("escalated", False),
         "escalation_id": out.get("escalation_id"), "route": out.get("route"), "sql_query": out.get("sql_query"),
     }
-    if not payload["escalated"] and out.get("route") != "error":
+    if not payload["escalated"] and out.get("route") in ("factual", "comparison", "calculation"):
         _CACHE[key] = (time.time(), payload)
     return ChatResponse(**payload)
